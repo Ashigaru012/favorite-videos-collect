@@ -1,0 +1,88 @@
+{{ template "header" .}}
+<div id="wrapper" style="padding-bottom: 230px;">
+    <!-- <div style="margin-bottom: 20px; text-align: center">
+  
+  
+
+  
+   </div> -->
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="well well-sm">
+                    <span class="m-b-5 title-truncate">Search Results For: <span class="text-white">FC2</span></span>
+                    公開中 <span class="text-white">1</span> へ <span class="text-white">20</span> の <span
+                        class="text-white">22029</span> ビデオ.
+                </div>
+                <div class="row">
+                    {{range .}}
+                    <div class="col-sm-4 col-md-3 col-lg-3">
+                        <div class="well well-sm">
+                            <a href="{{ .Url }}" class="thumb-popu">
+                                <div class="thumb-overlay">
+                                    <img src="{{ .Image }}"
+                                        title="{{ .Name }}" alt="{{ .Name }}"
+                                        id="rotate_3897119_20_1" class="img-responsive ">
+                                    <div class="hd-text-icon">HD</div>
+                                    <div class="duration">
+                                        09:19
+                                    </div>
+                                </div>
+                                <span class="video-title title-truncate m-t-5">{{ .Name }}</span>
+                            </a>
+                            <div class="video-added">
+                                4 時 前
+                            </div>
+
+                            <!-- <div class="video-views pull-left">
+                                0 観覧 </div> -->
+                            <!-- <div class="video-rating pull-right ">
+                                <i class="fa fa-heart video-rating-heart "></i> <b>0%</b>
+                            </div> -->
+                            <!-- <div class="clearfix"></div> -->
+
+                        </div>
+                    </div>
+                    {{ end }}
+
+                    
+
+                </div>
+
+
+
+                <div style="text-align: center;" class="visible-xs">
+                    <ul class="pagination pagination-lg">
+                        <li class="active"><span>1</span></li>
+                        <li class="hidden-xs"><a
+                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=2">2</a>
+                        </li>
+                        <li class="hidden-xs"><a
+                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=3">3</a>
+                        </li>
+                        <li class="hidden-xs"><a
+                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=4">4</a>
+                        </li>
+                        <li class="disabled hidden-xs"><span>&nbsp;...&nbsp;</span></li>
+                        <li></li>
+                        <li class="hidden-xs"><a
+                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=1100">1100</a>
+                        </li>
+                        <li class="hidden-xs"><a
+                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=1101">1101</a>
+                        </li>
+                        <li><a href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=2"
+                                class="prevnext">»</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>
