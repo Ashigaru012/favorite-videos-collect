@@ -15,6 +15,14 @@ type Video struct {
 	Image string
 }
 
+// Baseを親として別で構造体用意してもよいかも
+type VideoSelector struct {
+    Base   string
+    Name   string
+    URL    string
+    Image  string
+}
+
 func IsNumberInRange(getNum int,min int,max int) (b bool){
 	if getNum < min && getNum > max {
 		fmt.Println("Please enter 1 or more and 20 or less")
@@ -24,11 +32,21 @@ func IsNumberInRange(getNum int,min int,max int) (b bool){
 	}
 }
 
+// ターゲットページを引数に入れて、動画をサイトから取ってくるようにする
+// name,url,imageを事前にセットする関数を作る。baseセレクタは一旦ハードコードで置いておく
+func FetchTargetPageVideos() {
+
+}
+
+
+
+
 func FetchTokyomotionVideos(searchQuery string,getNum int) (v []Video) {
 	var videoList []Video
 	target := "https://www.tokyomotion.net"
-    Page := rod.New().NoDefaultDevice().MustConnect().MustPage( target + "/search?search_query=" + searchQuery + "&search_type=videos")
-	defer Page.MustClose()
+	urlQuery := target + "/search?search_query=" + searchQuery + "&search_type=videos"
+    page := rod.New().NoDefaultDevice().MustConnect().MustPage(urlQuery)
+	defer page.MustClose()
 
 	if getNum < 1 && getNum > 20 {
 		fmt.Println("Please enter 1 or more and 20 or less")
@@ -37,14 +55,19 @@ func FetchTokyomotionVideos(searchQuery string,getNum int) (v []Video) {
 
 	for i:=1; i<=getNum; i++ {
 		numStr := strconv.Itoa(i)
-		item := Page.MustElement("#wrapper > div.container > div.row > div > div.row > div:nth-child(" + numStr + ") > div")
-		name := item.MustElement("a > span").MustText()
-		path := item.MustElement("a").MustAttribute("href")
-		url := target + *path
-		image := item.MustElement("a > div > img").MustAttribute("src")
+		itemElement := "#wrapper > div.container > div.row > div > div.row > div:nth-child(" + numStr + ") > div"
+		nameElement := "a > span"
+		urlElement := "a"
+		imageElement := "a > div > img"
+		second := 1
+		item := page.MustElement(itemElement)
+		name := item.MustElement(nameElement).MustText()
+		url := string(*(item.MustElement(urlElement).MustAttribute("href")))
+		url = target + url
+		image := item.MustElement(imageElement).MustAttribute("src")
 
 		videoList = append(videoList,Video{name,url,*image})
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Duration(second) * time.Second)
 	}
 
 	return videoList
@@ -53,8 +76,8 @@ func FetchTokyomotionVideos(searchQuery string,getNum int) (v []Video) {
 func FetchtktubeVideos(searchQuery string,getNum int) (v []Video) {
 	var videoList []Video
 	target := "https://tktube.com/ja"
-    Page := rod.New().NoDefaultDevice().MustConnect().MustPage( target + "/search/" + searchQuery)
-	defer Page.MustClose()
+    page := rod.New().NoDefaultDevice().MustConnect().MustPage( target + "/search/" + searchQuery)
+	defer page.MustClose()
 
 	if getNum < 1 && getNum > 20 {
 		fmt.Println("Please enter 1 or more and 20 or less")
@@ -63,33 +86,7 @@ func FetchtktubeVideos(searchQuery string,getNum int) (v []Video) {
 
 	for i:=1; i<=getNum; i++ {
 		numStr := strconv.Itoa(i)
-		item := Page.MustElement("body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(" + numStr + ")")
-		name := item.MustElement("a > strong").MustText()
-		url := item.MustElement("a").MustAttribute("href")
-		image := item.MustElement("a > div.img > img").MustAttribute("src")
-
-		videoList = append(videoList,Video{name,*url,*image})
-		time.Sleep(1 * time.Second)
-	}
-
-	return videoList
-}
-
-func FetchsupjavVideos(searchQuery string,getNum int) (v []Video) {
-	var videoList []Video
-	target := "https://supjav.com/ja"
-    Page := rod.New().NoDefaultDevice().MustConnect().MustPage( target + "/?s=" + searchQuery)
-	fmt.Println(Page.MustElement("body > div > div > div > a").MustText())
-	defer Page.MustClose()
-
-	if getNum < 1 && getNum > 20 {
-		fmt.Println("Please enter 1 or more and 20 or less")
-		return
-	}
-
-	for i:=1; i<=getNum; i++ {
-		numStr := strconv.Itoa(i)
-		item := Page.MustElement("body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(" + numStr + ")")
+		item := page.MustElement("body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(" + numStr + ")")
 		name := item.MustElement("a > strong").MustText()
 		url := item.MustElement("a").MustAttribute("href")
 		image := item.MustElement("a > div.img > img").MustAttribute("src")
@@ -104,9 +101,8 @@ func FetchsupjavVideos(searchQuery string,getNum int) (v []Video) {
 func FetchjavbangersVideos(searchQuery string,getNum int) (v []Video) {
 	var videoList []Video
 	target := "https://www.javbangers.com"
-    Page := rod.New().NoDefaultDevice().MustConnect().MustPage( target + "/search/" + searchQuery)
-	fmt.Println(Page.MustElement("body > div.container > div.content > div > div.main-container > div > div.porntrex-box > div > div:nth-child(1)"))
-	defer Page.MustClose()
+    page := rod.New().NoDefaultDevice().MustConnect().MustPage( target + "/search/" + searchQuery)
+	defer page.MustClose()
 
 	if getNum < 1 && getNum > 20 {
 		fmt.Println("Please enter 1 or more and 20 or less")
@@ -115,7 +111,7 @@ func FetchjavbangersVideos(searchQuery string,getNum int) (v []Video) {
 
 	for i:=1; i<=getNum; i++ {
 		numStr := strconv.Itoa(i)
-		item := Page.MustElement("body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(" + numStr + ")")
+		item := page.MustElement("body > div.container > div.content > div > div.main-container > div > div.porntrex-box > div  > div:nth-child(" + numStr + ")")
 		name := item.MustElement("a > strong").MustText()
 		url := item.MustElement("a").MustAttribute("href")
 		image := item.MustElement("a > div.img > img").MustAttribute("src")
@@ -128,6 +124,6 @@ func FetchjavbangersVideos(searchQuery string,getNum int) (v []Video) {
 }
 
 func main() {
-	items := FetchjavbangersVideos("fc2",5)
-	fmt.Println(items[0].Image)
+	items := FetchTokyomotionVideos("fc2",5)
+	fmt.Println(items[0])
 }

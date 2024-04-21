@@ -4,9 +4,9 @@ import (
         "log"
         "net/http"
         "text/template"
-		"my-app-go/site"
+	"my-app-go/site"
         "github.com/gorilla/sessions"
-		"fmt"
+	"fmt"
 )
 
 // session variable. (not used)
