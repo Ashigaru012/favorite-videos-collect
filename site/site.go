@@ -23,6 +23,13 @@ type VideoSelector struct {
     Image  string
 }
 
+func (vs *VideoSelector) SetVideoSelector(Base string,Name string,Url string,Image string) {
+	vs.Base = Base
+	vs.Name = Name
+	vs.Url = Url
+	vs.Image = Image
+}
+
 func IsNumberInRange(getNum int,min int,max int) (b bool){
 	if getNum < min && getNum > max {
 		fmt.Println("Please enter 1 or more and 20 or less")
@@ -34,8 +41,21 @@ func IsNumberInRange(getNum int,min int,max int) (b bool){
 
 // ターゲットページを引数に入れて、動画をサイトから取ってくるようにする
 // name,url,imageを事前にセットする関数を作る。baseセレクタは一旦ハードコードで置いておく
-func FetchTargetPageVideos() {
+func FetchTargetPageVideos(searchQuery string,getNum int,target string) (v []Video) {
+	var videoList []Video
+	min = 1
+	max = 21
+	urlQuery := target + "/search?search_query=" + searchQuery + "&search_type=videos"
+	page := rod.New().NoDefaultDevice().MustConnect().MustPage(urlQuery)
+	defer page.MustClose()
 
+	if !IsNumberInRange(getNum,min,max) {
+		return
+	}
+
+	for i:=min; i<=getNum; i++ {
+		
+	}
 }
 
 
