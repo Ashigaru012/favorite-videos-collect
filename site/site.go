@@ -15,16 +15,17 @@ type Video struct {
 	Image string
 }
 
+func (v *Video) Set
+
 // Baseを親として別で構造体用意してもよいかも
 type VideoSelector struct {
-    Base   string
+    // Base   string
     Name   string
-    URL    string
+    Url    string
     Image  string
 }
 
-func (vs *VideoSelector) SetVideoSelector(Base string,Name string,Url string,Image string) {
-	vs.Base = Base
+func (vs *VideoSelector) SetVideoSelector(Name string,Url string,Image string) {
 	vs.Name = Name
 	vs.Url = Url
 	vs.Image = Image
@@ -41,10 +42,13 @@ func IsNumberInRange(getNum int,min int,max int) (b bool){
 
 // ターゲットページを引数に入れて、動画をサイトから取ってくるようにする
 // name,url,imageを事前にセットする関数を作る。baseセレクタは一旦ハードコードで置いておく
-func FetchTargetPageVideos(searchQuery string,getNum int,target string) (v []Video) {
+// TODO:urlQuery と itemElement はサイトによって変わるので、引数に入れておくようにする
+
+func FetchTargetPageVideos(searchQuery string,getNum int,target string,vs VideoSelector,Base string) (v []Video) {
 	var videoList []Video
-	min = 1
-	max = 21
+	min := 1
+	max := 21
+	second := 1
 	urlQuery := target + "/search?search_query=" + searchQuery + "&search_type=videos"
 	page := rod.New().NoDefaultDevice().MustConnect().MustPage(urlQuery)
 	defer page.MustClose()
@@ -54,7 +58,18 @@ func FetchTargetPageVideos(searchQuery string,getNum int,target string) (v []Vid
 	}
 
 	for i:=min; i<=getNum; i++ {
-		
+
+		itemElement := "#wrapper > div.container > div.row > div > div.row > div:nth-child(" + numStr + ") > div"
+		item := page.MustElement(itemElement)
+
+		// このあたりVideo構造体に値をセットするメソッド作ってもよいかも
+		name := item.MustElement(vs.Name).MustText()
+		url := string(*(item.MustElement(vs.Url).MustAttribute("href")))
+		url = target + url
+		image := item.MustElement(vs.Image).MustAttribute("src")
+
+		videoList = append(videoList,Video{name,url,*image})
+		time.Sleep(time.Duration(second) * time.Second)
 	}
 }
 
