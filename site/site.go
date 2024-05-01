@@ -1,5 +1,4 @@
-// TODO:相対URLだったら絶対URLにする処理を追加する
-// urlQuery を一般化する
+// TODO:javbangersVideosがエラーになってる原因を調べる。Mustじゃなくてerr返ってくる方使ってみるとよいかも(element関数など)
 
 // package site
 package main
@@ -12,10 +11,6 @@ import (
 	"net/url"
 	"log"
 )
-
-// type ValueSetter interface {
-// 	SetValue(Name string,Url string,Image string)
-// }
 
 type Video struct {
 	Name string
@@ -32,10 +27,10 @@ func (v *Video) SetValue(Name string,Url string,Image string,Target string) {
 // Baseを親として別で構造体用意してもよいかも
 type VideoPageScraper struct {
 	TargetURL string
-    Item   string
-    Name   string
-    Url    string
-    Image  string
+    Item      string
+    Name      string
+    Url       string
+    Image     string
 }
 
 func (vs *VideoPageScraper) SetValue(Item string,Name string,Url string,Image string) {
@@ -59,14 +54,14 @@ func IsNumberInRange(getNum int,min int,max int) bool {
 // name,url,imageを事前にセットする関数を作る。baseセレクタは一旦ハードコードで置いておく
 // TODO:urlQuery と itemElement はサイトによって変わるので、引数に入れておくようにする
 
-
-func FetchTargetPageVideos(searchQuery string,getNum int,vs VideoPageScraper) []Video {
+func FetchTargetPageVideos(searchQuery string,getNum int,vs VideoPageScraper,ch chan []Video) {
 	var videoList []Video
 	second := 1
 	baseURL, err := url.Parse(fmt.Sprintf(vs.TargetURL,searchQuery))
 	if err != nil {
 		log.Fatal(err)
 	}
+	
 	page := rod.New().NoDefaultDevice().MustConnect().MustPage(baseURL.String())
 
 	defer page.MustClose()
@@ -86,38 +81,13 @@ func FetchTargetPageVideos(searchQuery string,getNum int,vs VideoPageScraper) []
 			log.Fatal(err)
 		}
 		image := *(item.MustElement(vs.Image).MustAttribute("src"))
-		
+
 		videoList = append(videoList,Video{name,baseURL.ResolveReference(u).String(),image})
 		time.Sleep(time.Duration(second) * time.Second)
 	}
 
-	return videoList
+	ch <- videoList
 }
-
-// func FetchjavbangersVideos(searchQuery string,getNum int) (v []Video) {
-// 	var videoList []Video
-// 	target := "https://www.javbangers.com"
-//     page := rod.New().NoDefaultDevice().MustConnect().MustPage( target + "/search/" + searchQuery)
-// 	defer page.MustClose()
-
-// 	if getNum < 1 && getNum > 20 {
-// 		fmt.Println("Please enter 1 or more and 20 or less")
-// 		return
-// 	}
-
-// 	for i:=1; i<=getNum; i++ {
-// 		numStr := strconv.Itoa(i)
-// 		item := page.MustElement("body > div.container > div.content > div > div.main-container > div > div.porntrex-box > div  > div:nth-child(" + numStr + ")")
-// 		name := item.MustElement("a > strong").MustText()
-// 		url := item.MustElement("a").MustAttribute("href")
-// 		image := item.MustElement("a > div.img > img").MustAttribute("src")
-
-// 		videoList = append(videoList,Video{name,*url,*image})
-// 		time.Sleep(1 * time.Second)
-// 	}
-
-// 	return videoList
-// }
 
 func main() {
 	tokyomotionPage := VideoPageScraper{
@@ -128,25 +98,24 @@ func main() {
 		"a > div > img",
 	}
 
-	tktubePage := VideoPageScraper{
-		"https://tktube.com/ja/search/%s/",
-		"body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(%s)",
-		"a > strong",
-		"a",
-		"a > div.img > img",
-	}
-
-	javbangersPage := VideoPageScraper{
-		"https://www.javbangers.com/search/%s/",
-		"body > div.container > div.content > div > div.main-container > div > div.porntrex-box > div  > div:nth-child(%s)",
-		"a > strong",
-		"a",
-		"a > div.img > img",
-	}
+	// tktubePage := VideoPageScraper{
+	// 	"https://tktube.com/ja/search/%s/",
+	// 	"body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(%s)",
+	// 	"a > strong",
+	// 	"a",
+	// 	"a > div.img > img",
+	// }
 
 	// このあたり並列処理にしてもよいかも
-	tokyomotionVideos := FetchTargetPageVideos("fc2",5,tokyomotionPage)
-	tktubeVideos := FetchTargetPageVideos("fc2",5,tktubePage)
-	javbangersVideos := FetchTargetPageVideos("fc2",5,javbangersPage)
-	fmt.Println(tokyomotionVideos[0],tktubeVideos[0],javbangersVideos[0])
+	// tokyomotionVideos := FetchTargetPageVideos("fc2",5,tokyomotionPage)
+	// tktubeVideos := FetchTargetPageVideos("fc2",5,tktubePage)
+
+	ch := make(chan []Video, 2)
+	go FetchTargetPageVideos("fc2",5,tokyomotionPage,ch)
+	tokyomotionVideos := <- ch
+
+	fmt.Println(tokyomotionVideos[0])
 }
+
+
+
