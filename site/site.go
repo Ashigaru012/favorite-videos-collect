@@ -1,4 +1,4 @@
-// TODO:javbangersVideosがエラーになってる原因を調べる。Mustじゃなくてerr返ってくる方使ってみるとよいかも(element関数など)
+// TODO:判定系やテストしてみても良いかも
 
 // package site
 package main
@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"net/url"
 	"log"
+	"sync"
 )
 
 type Video struct {
@@ -24,7 +25,7 @@ func (v *Video) SetValue(Name string,Url string,Image string,Target string) {
 	v.Image = Image
 }
 
-// Baseを親として別で構造体用意してもよいかも
+
 type VideoPageScraper struct {
 	TargetURL string
     Item      string
@@ -40,6 +41,7 @@ func (vs *VideoPageScraper) SetValue(Item string,Name string,Url string,Image st
 	vs.Image = Image
 }
 
+
 func IsNumberInRange(getNum int,min int,max int) bool {
 	if getNum < min && getNum > max {
 		fmt.Println("Please enter 1 or more and 20 or less")
@@ -49,12 +51,7 @@ func IsNumberInRange(getNum int,min int,max int) bool {
 	}
 }
 
-
-// ターゲットページを引数に入れて、動画をサイトから取ってくるようにする
-// name,url,imageを事前にセットする関数を作る。baseセレクタは一旦ハードコードで置いておく
-// TODO:urlQuery と itemElement はサイトによって変わるので、引数に入れておくようにする
-
-func FetchTargetPageVideos(searchQuery string,getNum int,vs VideoPageScraper,ch chan []Video) {
+func FetchTargetPageVideos(searchQuery string,getNum int,vs VideoPageScraper,ch chan []Video,wg *sync.WaitGroup) {
 	var videoList []Video
 	second := 1
 	baseURL, err := url.Parse(fmt.Sprintf(vs.TargetURL,searchQuery))
@@ -87,10 +84,17 @@ func FetchTargetPageVideos(searchQuery string,getNum int,vs VideoPageScraper,ch 
 	}
 
 	ch <- videoList
+	wg.Done()
 }
 
 func main() {
-	tokyomotionPage := VideoPageScraper{
+	// start := time.Now()
+	searchWord := "fc2"
+	getNum := 5
+	videoPageScrapers := make(map[string]VideoPageScraper)
+	videos := make(map[string][]Video)
+
+	videoPageScrapers["tokyomotion"] = VideoPageScraper{
 		"https://www.tokyomotion.net/search?search_query=%s&search_type=videos&type=public",
 		"#wrapper > div.container > div.row > div > div.row > div:nth-child(%s) > div",
 		"a > span",
@@ -98,23 +102,25 @@ func main() {
 		"a > div > img",
 	}
 
-	// tktubePage := VideoPageScraper{
-	// 	"https://tktube.com/ja/search/%s/",
-	// 	"body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(%s)",
-	// 	"a > strong",
-	// 	"a",
-	// 	"a > div.img > img",
-	// }
-
-	// このあたり並列処理にしてもよいかも
-	// tokyomotionVideos := FetchTargetPageVideos("fc2",5,tokyomotionPage)
-	// tktubeVideos := FetchTargetPageVideos("fc2",5,tktubePage)
+	videoPageScrapers["tktube"] = VideoPageScraper{
+		"https://tktube.com/ja/search/%s/",
+		"body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(%s)",
+		"a > strong",
+		"a",
+		"a > div.img > img",
+	}
 
 	ch := make(chan []Video, 2)
-	go FetchTargetPageVideos("fc2",5,tokyomotionPage,ch)
-	tokyomotionVideos := <- ch
+	var wg sync.WaitGroup
+	wg.Add(len(videoPageScrapers))
+	for pageName, _:= range videoPageScrapers {
+		go FetchTargetPageVideos(searchWord,getNum,videoPageScrapers[pageName],ch,&wg)
+		videos[pageName] = <- ch
+	}
+	close(ch)
 
-	fmt.Println(tokyomotionVideos[0])
+	fmt.Println(videos["tktube"])
+	// fmt.Println("took: ", time.Since(start))
 }
 
 
