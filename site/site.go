@@ -1,4 +1,5 @@
 // TODO:判定系やテストしてみても良いかも
+// TODO:videoPageScrapers をパッケージ化
 
 // package site
 package main
@@ -11,6 +12,7 @@ import (
 	"net/url"
 	"log"
 	"sync"
+	"my-app-go/site/scrapers"
 )
 
 type Video struct {
@@ -91,24 +93,7 @@ func main() {
 	// start := time.Now()
 	searchWord := "fc2"
 	getNum := 5
-	videoPageScrapers := make(map[string]VideoPageScraper)
-	videos := make(map[string][]Video)
-
-	videoPageScrapers["tokyomotion"] = VideoPageScraper{
-		"https://www.tokyomotion.net/search?search_query=%s&search_type=videos&type=public",
-		"#wrapper > div.container > div.row > div > div.row > div:nth-child(%s) > div",
-		"a > span",
-		"a",
-		"a > div > img",
-	}
-
-	videoPageScrapers["tktube"] = VideoPageScraper{
-		"https://tktube.com/ja/search/%s/",
-		"body > div.container > div.content > div > div.main-container > div > div > div > div > div:nth-child(%s)",
-		"a > strong",
-		"a",
-		"a > div.img > img",
-	}
+	videoPageScrapers := scrapers.VideoPageScrapers
 
 	ch := make(chan []Video, 2)
 	var wg sync.WaitGroup
