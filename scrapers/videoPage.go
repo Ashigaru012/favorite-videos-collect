@@ -1,6 +1,6 @@
 package scrapers
 
-
+// Video is structure.
 type VideoPage struct {
 	TargetURL string
     Item      string
@@ -16,6 +16,7 @@ func (vp *VideoPage) SetValue(Item string,Name string,Url string,Image string) {
 	vp.Image = Image
 }
 
+// 動画ページの情報を取得する関数
 func GetVideoPages() map[string]VideoPage {
     VideoPages := make(map[string]VideoPage)
 

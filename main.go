@@ -4,9 +4,10 @@ import (
         "log"
         "net/http"
         "text/template"
-	"my-app-go/site"
         "github.com/gorilla/sessions"
-	"fmt"
+        "sync"
+        "my-app-go/fetcher"
+	"my-app-go/scrapers"
 )
 
 // session variable. (not used)
@@ -27,9 +28,8 @@ func page(fname string) *template.Template {
 }
 
 // index handler.
-func index(w http.ResponseWriter, rq *http.Request) {
-        item := site.FetchTokyomotionVideos("fc2",5)
-        er := page("index").Execute(w, item)
+func index(w http.ResponseWriter, rq *http.Request,videos map[string][]fetcher.Video) {
+        er := page("index").Execute(w, videos)
         if er != nil {
                 log.Fatal(er)
         }
@@ -57,9 +57,36 @@ func hello(w http.ResponseWriter, rq *http.Request) {
 
 // main program.
 func main() {
+
+        searchWord := "fc2"
+        getNum := 5
+        VideoPages := scrapers.GetVideoPages()
+    
+        ch := make(chan []fetcher.Video)
+        var wg sync.WaitGroup
+        videos := make(map[string][]fetcher.Video)
+    
+        wg.Add(len(VideoPages))
+        for pageName, vp := range VideoPages {
+            go func(pageName string, vp scrapers.VideoPage) {
+                defer wg.Done()
+                fetcher.FetchTargetPageVideos(searchWord, getNum, vp, ch, &wg)
+            }(pageName, vp)
+        }
+    
+        go func() {
+            wg.Wait()
+            close(ch)
+        }()
+    
+        for videoList := range ch {
+            for pageName := range VideoPages {
+                videos[pageName] = append(videos[pageName], videoList...)
+            }
+        }
         // index handling.
         http.HandleFunc("/", func(w http.ResponseWriter, rq *http.Request) {
-                index(w, rq)
+                index(w, rq,videos)
         })
         // hello handling
         http.HandleFunc("/hello", func(w http.ResponseWriter, rq *http.Request) {

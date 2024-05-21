@@ -17,10 +17,14 @@ func main() {
 	getNum := 5
 	VideoPages := scrapers.GetVideoPages()
 
+	// チャンネル作成
 	ch := make(chan []fetcher.Video, 2)
 	var wg sync.WaitGroup
 	videos := make(map[string][]fetcher.Video)
 	wg.Add(len(VideoPages))
+
+	// 動画情報を videos 配列に格納する処理
+	// goroutine 使って FetchTargetPageVideos 関数の処理を並行化
 	for pageName, _:= range VideoPages {
 		go fetcher.FetchTargetPageVideos(searchWord,getNum,VideoPages[pageName],ch,&wg)
 		videos[pageName] = <- ch
