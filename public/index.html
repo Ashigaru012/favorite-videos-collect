@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Video search</title>
+    </head>
+    <body>
+        <h1>最新動画取得サイト</h1>
+        <form action="/fetcher" method="get">
+            <div>
+                <label>検索ワード：</label>
+                <input type="search" name="searchWord" placeholder="検索キーワード">
+            </div>
+            <div>
+                <label>取得ページ：</label>
+                <select name="pageName">
+                    <option>tokyomotion</option>
+                    <option>tktube</option>
+                    <option>ALL</option>
+                </select>
+            </div>
+            <div>
+                <label>取得数：</label>
+                <input type="number" name="getNum" max="10">
+            </div>
+            <input type="submit" value="検索">
+        </form>
+    </body>
+</html>

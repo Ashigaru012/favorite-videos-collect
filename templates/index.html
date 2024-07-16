@@ -1,88 +1,100 @@
-{{ template "header" .}}
-<div id="wrapper" style="padding-bottom: 230px;">
-    <!-- <div style="margin-bottom: 20px; text-align: center">
-  
-  
+<!DOCTYPE html>
+<html lang="ja">
 
-  
-   </div> -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>動画レイアウト</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
 
-
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="well well-sm">
-                    <span class="m-b-5 title-truncate">Search Results For: <span class="text-white">FC2</span></span>
-                    公開中 <span class="text-white">1</span> へ <span class="text-white">20</span> の <span
-                        class="text-white">22029</span> ビデオ.
-                </div>
-                <div class="row">
-                    {{range .}}
-                    <div class="col-sm-4 col-md-3 col-lg-3">
-                        <div class="well well-sm">
+<body>
+    <header class="bg-dark text-white text-center py-3">
+        <h1>Tokyo Motion</h1>
+    </header>
+    <div class="container my-4">
+        <div class="btn-toolbar mb-3" role="toolbar">
+            <div class="btn-group mr-2" role="group">
+                <button type="button" class="btn btn-danger">ライブチャット</button>
+                <button type="button" class="btn btn-danger">WebCam</button>
+                <button type="button" class="btn btn-danger">amateur</button>
+                <button type="button" class="btn btn-danger">素人</button>
+                <button type="button" class="btn btn-danger">FC2</button>
+                <button type="button" class="btn btn-danger">無修正</button>
+                <button type="button" class="btn btn-danger">個人撮影</button>
+                <button type="button" class="btn btn-danger">盗撮</button>
+                <button type="button" class="btn btn-danger">Live</button>
+                <button type="button" class="btn btn-danger">オナニー</button>
+                <button type="button" class="btn btn-danger">ハメ撮り</button>
+                <button type="button" class="btn btn-danger">chat</button>
+                <button type="button" class="btn btn-danger">巨乳</button>
+                <!-- 必要に応じてタグを追加 -->
+            </div>
+        </div>
+        <div class="row" id="video-container">
+            <!-- 必要に応じて動画エントリーを追加 -->
+            {{range $index, $element := .}}
+                {{range $element}}
+                    <div class="col-md-4 mb-4 video">
+                        <div class="card">
                             <a href="{{ .Url }}" class="thumb-popu">
-                                <div class="thumb-overlay">
-                                    <img src="{{ .Image }}"
-                                        title="{{ .Name }}" alt="{{ .Name }}"
-                                        id="rotate_3897119_20_1" class="img-responsive ">
-                                    <div class="hd-text-icon">HD</div>
-                                    <div class="duration">
-                                        09:19
-                                    </div>
+                                <img src="{{ .Image }}" class="card-img-top" alt="動画サムネイル">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ .Name }}</h5>
+                                    <p class="card-text">53 日前 • 21000 観覧 • 60%</p>
+                                    <img src="{{ .Logo }}" width="130" height="30">
                                 </div>
-                                <span class="video-title title-truncate m-t-5">{{ .Name }}</span>
                             </a>
-                            <div class="video-added">
-                                4 時 前
-                            </div>
-
-                            <!-- <div class="video-views pull-left">
-                                0 観覧 </div> -->
-                            <!-- <div class="video-rating pull-right ">
-                                <i class="fa fa-heart video-rating-heart "></i> <b>0%</b>
-                            </div> -->
-                            <!-- <div class="clearfix"></div> -->
-
                         </div>
                     </div>
-                    {{ end }}
-
-                    
-
-                </div>
-
-
-
-                <div style="text-align: center;" class="visible-xs">
-                    <ul class="pagination pagination-lg">
-                        <li class="active"><span>1</span></li>
-                        <li class="hidden-xs"><a
-                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=2">2</a>
-                        </li>
-                        <li class="hidden-xs"><a
-                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=3">3</a>
-                        </li>
-                        <li class="hidden-xs"><a
-                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=4">4</a>
-                        </li>
-                        <li class="disabled hidden-xs"><span>&nbsp;...&nbsp;</span></li>
-                        <li></li>
-                        <li class="hidden-xs"><a
-                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=1100">1100</a>
-                        </li>
-                        <li class="hidden-xs"><a
-                                href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=1101">1101</a>
-                        </li>
-                        <li><a href="https://www.tokyomotion.net/search?search_query=FC2&amp;search_type=videos&amp;type=public&amp;page=2"
-                                class="prevnext">»</a></li>
-                    </ul>
-                </div>
-
-            </div>
-
-
+                {{ end }}
+            {{ end }}
+            <!-- 必要に応じて動画エントリーを追加 -->
         </div>
-
-
+        <nav>
+            <ul class="pagination justify-content-center">
+                <!-- ページ番号ボタンがここに追加されます -->
+            </ul>
+        </nav>
     </div>
-</div>
+    <!-- Bootstrap JS (jQueryなし) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const videosPerPage = 6; // 1ページあたりのビデオ数
+        const videos = document.querySelectorAll('.video');
+        const totalPages = Math.ceil(videos.length / videosPerPage);
+        const paginationContainer = document.querySelector('.pagination');
+
+        function showPage(page) {
+            videos.forEach((video, index) => {
+                video.style.display = (index >= (page - 1) * videosPerPage && index < page * videosPerPage) ? 'block' : 'none';
+            });
+            document.querySelectorAll('.pagination .page-link').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`.pagination .page-link[data-page="${page}"]`).classList.add('active');
+        }
+
+        function createPagination() {
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item';
+                const button = document.createElement('button');
+                button.className = 'page-link';
+                button.textContent = i;
+                button.dataset.page = i;
+                button.addEventListener('click', () => showPage(i));
+                if (i === 1) button.classList.add('active');
+                li.appendChild(button);
+                paginationContainer.appendChild(li);
+            }
+        }
+
+        createPagination();
+        showPage(1); // 初期ページを表示
+    </script>
+</body>
+
+</html>

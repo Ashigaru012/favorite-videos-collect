@@ -17,9 +17,10 @@ import (
 
 // 動画情報を格納する構造体
 type Video struct {
-	Name string
-	Url string
-	Image string
+	Name	string
+	Url		string
+	Image 	string
+	Logo 	string
 }
 
 // Video 構造体に値をセットするメソッド
@@ -70,7 +71,7 @@ func FetchTargetPageVideos(searchQuery string,getNum int,vp scrapers.VideoPage,c
 		}
 		image := *(item.MustElement(vp.Image).MustAttribute("src"))
 
-		videoList = append(videoList,Video{name,baseURL.ResolveReference(u).String(),image})
+		videoList = append(videoList,Video{name,baseURL.ResolveReference(u).String(),image,vp.Logo})
 		time.Sleep(time.Duration(second) * time.Second)
 	}
 

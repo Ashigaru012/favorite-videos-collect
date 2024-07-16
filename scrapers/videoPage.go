@@ -1,14 +1,16 @@
 package scrapers
 
-// Video is structure.
+// ページ情報を格納する構造体
 type VideoPage struct {
 	TargetURL string
     Item      string
     Name      string
     Url       string
     Image     string
+    Logo      string
 }
 
+// VideoPage 構造体に値をセットするメソッド
 func (vp *VideoPage) SetValue(Item string,Name string,Url string,Image string) {
 	vp.Item = Item
 	vp.Name = Name
@@ -26,6 +28,7 @@ func GetVideoPages() map[string]VideoPage {
         "a > span",
         "a",
         "a > div > img",
+        "https://cdn.tokyo-motion.net/img/logo.gif",
     }
 
     VideoPages["tktube"] = VideoPage{
@@ -34,6 +37,7 @@ func GetVideoPages() map[string]VideoPage {
         "a > strong",
         "a",
         "a > div.img > img",
+        "https://tktube.com/static/images/logo.png",
     }
 
 	// VideoPages["javmix.tv"] = VideoPage{

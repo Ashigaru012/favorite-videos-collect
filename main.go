@@ -1,97 +1,66 @@
 package main
 
 import (
-        "log"
+        // "log"
         "net/http"
-        "text/template"
-        "github.com/gorilla/sessions"
+        // "text/template"
+        // "github.com/gorilla/sessions"
+        "strconv"
         "sync"
         "my-app-go/fetcher"
 	"my-app-go/scrapers"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-// session variable. (not used)
-var cs *sessions.CookieStore = sessions.NewCookieStore([]byte("secret-key-1234"))
-
-// Template for no-template.
-func notemp() *template.Template {
-        src := "<html><body><h1>NO TEMPLATE.</h1></body></html>"
-        tmp, _ := template.New("index").Parse(src)
-        return tmp
-}
-
-// get target Temlate.
-func page(fname string) *template.Template {
-        tmps, _ := template.ParseFiles("templates/"+fname+".html",
-                "templates/head.html", "templates/foot.html")
-        return tmps
-}
-
-// index handler.
-func index(w http.ResponseWriter, rq *http.Request,videos map[string][]fetcher.Video) {
-        er := page("index").Execute(w, videos)
-        if er != nil {
-                log.Fatal(er)
-        }
-}
-
-// hello handler.
-func hello(w http.ResponseWriter, rq *http.Request) {
-        data := []string{
-                "One", "Two", "Three",
-        }
-
-        item := struct {
-                Title string
-                Data  []string
-        }{
-                Title: "Hello",
-                Data:  data,
-        }
-
-        er := page("hello").Execute(w, item)
-        if er != nil {
-                log.Fatal(er)
-        }
-}
-
-// main program.
 func main() {
+        // インスタンスを作成
+        e := echo.New()
+      
+        // ミドルウェアを設定
+        e.Use(middleware.Logger())
+        e.Use(middleware.Recover())
+      
+        // ルートを設定
+        e.GET("/", IndexPage)
+        e.GET("/fetcher",GetVideos)
+      
+        // サーバーをポート番号1323で起動
+        e.Logger.Fatal(e.Start(":1323"))
+      }
+      
+      // ハンドラーを定義
+      func IndexPage(c echo.Context) error {
+        return c.File("public/index.html")
+      }
 
-        searchWord := "fc2"
-        getNum := 5
-        VideoPages := scrapers.GetVideoPages()
-    
-        ch := make(chan []fetcher.Video)
-        var wg sync.WaitGroup
-        videos := make(map[string][]fetcher.Video)
-    
+      func GetVideos(c echo.Context) error {
+        searchWord := c.QueryParam("searchWord")
+	getNum,_ := strconv.Atoi(c.QueryParam("getNum"))
+        pageName := c.QueryParam("pageName")
+	VideoPages := scrapers.GetVideoPages()
+
+	// チャンネル作成
+	ch := make(chan []fetcher.Video, 2)
+	var wg sync.WaitGroup
+	videos := make(map[string][]fetcher.Video)
+	
+
+        if pageName != "ALL" {
+                wg.Add(1)
+                go fetcher.FetchTargetPageVideos(searchWord,getNum,VideoPages[pageName],ch,&wg)
+                videos[pageName] = <- ch
+                close(ch)
+                return c.JSON(http.StatusOK, videos[pageName])
+        } 
+
+	// 動画情報を videos 配列に格納する処理
+	// goroutine 使って FetchTargetPageVideos 関数の処理を並行化
         wg.Add(len(VideoPages))
-        for pageName, vp := range VideoPages {
-            go func(pageName string, vp scrapers.VideoPage) {
-                defer wg.Done()
-                fetcher.FetchTargetPageVideos(searchWord, getNum, vp, ch, &wg)
-            }(pageName, vp)
-        }
-    
-        go func() {
-            wg.Wait()
-            close(ch)
-        }()
-    
-        for videoList := range ch {
-            for pageName := range VideoPages {
-                videos[pageName] = append(videos[pageName], videoList...)
-            }
-        }
-        // index handling.
-        http.HandleFunc("/", func(w http.ResponseWriter, rq *http.Request) {
-                index(w, rq,videos)
-        })
-        // hello handling
-        http.HandleFunc("/hello", func(w http.ResponseWriter, rq *http.Request) {
-                hello(w, rq)
-        })
-
-        http.ListenAndServe(":8080", nil)
-}
+	for p, _:= range VideoPages {
+		go fetcher.FetchTargetPageVideos(searchWord,getNum,VideoPages[p],ch,&wg)
+		videos[p] = <- ch
+	}
+	close(ch)
+        return c.JSON(http.StatusOK, videos)
+      }

@@ -31,7 +31,7 @@ func main() {
 	}
 	close(ch)
 
-	fmt.Println(videos["tktube"])
+	fmt.Println(videos)
 	// fmt.Println("took: ", time.Since(start))
 }
 
