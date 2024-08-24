@@ -24,6 +24,7 @@ func main() {
         // ルートを設定
         e.GET("/", IndexPage)
         e.GET("/fetcher",GetVideos)
+        e.Static("/public/css/", "./public/css")
       
         // サーバーをポート番号1323で起動
         e.Logger.Fatal(e.Start(":1323"))
@@ -46,6 +47,7 @@ func main() {
 	videos := make(map[string][]fetcher.Video)
 	
 
+        // 共通化しておく
         if pageName != "ALL" {
                 wg.Add(1)
                 go fetcher.FetchTargetPageVideos(searchWord,getNum,VideoPages[pageName],ch,&wg)

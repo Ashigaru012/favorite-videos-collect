@@ -1,29 +1,73 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Video search</title>
-    </head>
-    <body>
-        <h1>最新動画取得サイト</h1>
-        <form action="/fetcher" method="get">
-            <div>
-                <label>検索ワード：</label>
-                <input type="search" name="searchWord" placeholder="検索キーワード">
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/output.css">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto">
+        <h1>動画取得ツール</h1>
+        <form id="searchForm" class="shadow-md rounded-md bg-gray w-full max-w-2xl px-3">
+            <div class="flex space-x-1">
+                    <input class="block w-full sm:w-2/3 bg-gray-200 py-2 px-3 text-gray-700 border border-gray-200 rounded focus:outline-none focus:bg-white" type="text" id="searchWord" placeholder="検索ワード" required>
+                    <select class="block w-full sm:w-2/3 bg-gray-200 py-2 px-3 text-gray-700 border border-gray-200 rounded focus:outline-none focus:bg-white" id="pageName" class="appearance-none row-start-1 col-start-1 bg-slate-50 dark:bg-slate-800 ...">
+                        <option value="ALL">すべて</option>
+                        <option value="tokyomotion">tokyomotion</option>
+                        <option value="tktube">tktube</option>
+                    </select>
+                    <input class="block w-full sm:w-2/3 bg-gray-200 py-2 px-3 text-gray-700 border border-gray-200 rounded focus:outline-none focus:bg-white" type="number" id="getNum" placeholder="取得数" value=2>
+    
+                    <button class="w-24 bg-red-500 hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring focus:ring-red-300" type="submit">検索</button>
             </div>
-            <div>
-                <label>取得ページ：</label>
-                <select name="pageName">
-                    <option>tokyomotion</option>
-                    <option>tktube</option>
-                    <option>ALL</option>
-                </select>
-            </div>
-            <div>
-                <label>取得数：</label>
-                <input type="number" name="getNum" max="10">
-            </div>
-            <input type="submit" value="検索">
         </form>
-    </body>
+        
+        <div id="results" class="grid grid-cols-4 m-1"></div>
+    </div>
+    
+    
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchWord = document.getElementById('searchWord').value;
+            const getNum = document.getElementById('getNum').value;
+            const pageName = document.getElementById('pageName').value;
+
+            fetch(`/fetcher?searchWord=${encodeURIComponent(searchWord)}&getNum=${getNum}&pageName=${pageName}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+
+                    if (pageName === 'ALL') {
+                        for (const [site, videos] of Object.entries(data)) {
+                            displayVideos(videos, resultsDiv);
+                        }
+                    } else {
+                        displayVideos(data, resultsDiv);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('results').innerHTML = 'エラーが発生しました。';
+                });
+        });
+
+        function displayVideos(videos, container) {
+            // const grid = document.createElement('div').className("grid-cols-7");
+            videos.forEach(video => {
+                const div = document.createElement('div');
+                div.className = "shadow-md bg-white m-2";
+                div.innerHTML = `
+                    <img src=${video.Image}><br>
+                    <a href="${video.Url}" target="_blank">${video.Name}</a>
+                    <p>投稿日: ${video.PostedAt}</p>
+                    <img src=${video.Logo}>
+                `;
+                container.appendChild(div);
+            });
+            
+        }
+    </script>
+</body>
 </html>

@@ -8,6 +8,7 @@ type VideoPage struct {
     Url       string
     Image     string
     Logo      string
+    PostedAt  string
 }
 
 // VideoPage 構造体に値をセットするメソッド
@@ -29,6 +30,7 @@ func GetVideoPages() map[string]VideoPage {
         "a",
         "a > div > img",
         "https://cdn.tokyo-motion.net/img/logo.gif",
+        "div > div.video-added",
     }
 
     VideoPages["tktube"] = VideoPage{
@@ -38,6 +40,7 @@ func GetVideoPages() map[string]VideoPage {
         "a",
         "a > div.img > img",
         "https://tktube.com/static/images/logo.png",
+        "a > div:nth-child(4) > div > em",
     }
 
 	// VideoPages["javmix.tv"] = VideoPage{
